@@ -2,6 +2,8 @@
 
 > Element-UI + Sortable 表格行、列拖拽排序
 
+![img](./img.png)
+
 ## Project setup
 
 ```bash
