@@ -1,58 +1,76 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <section>
+    <EDTable :tableData="tableData" :dropCol="dropCol" :colList="colList">
+      <template #setting>
+        <el-button type="text" icon="el-icon-sort" size="small">拖拽</el-button>
+      </template>
+    </EDTable>
+    <pre style="text-align: left;">
+      {{ tableData }}
+    </pre>
+  </section>
 </template>
 
 <script>
+/**
+ * @author 🌈MARS <wangdaoo@yeah.net>
+ * @desc 📝表格拖拽
+ * @copyright 🤝In me the tiger sniffs the rose.
+ */
+import EDTable from './EDTable';
+import Sortable from 'sortablejs';
+import { colList, dropCol, TableList } from './data.js'
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
+  components: {
+    EDTable,
+  },
+  data() {
+    return {
+      colList: colList,
+      dropCol: dropCol,
+      tableData: TableList,
+    };
+  },
+  mounted() {
+    this.rowDrop();
+    this.columnDrop();
+  },
+  methods: {
+    /** 行拖拽 */
+    rowDrop() {
+      const tbody = document.querySelector('.el-table__body-wrapper tbody');
+      const _this = this;
+      Sortable.create(tbody, {
+        animation: 180,
+        delay: 0,
+        onEnd({ newIndex, oldIndex }) {
+          const currRow = _this.tableData.splice(oldIndex, 1)[0];
+          _this.tableData.splice(newIndex, 0, currRow);
+        },
+      });
+    },
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+    /** 列拖拽 */
+    columnDrop() {
+      const tHeader = document.querySelector('.el-table__header-wrapper tr');
+      this.sortable = Sortable.create(tHeader, {
+        animation: 180,
+        /** 延迟 */
+        // delay: 1,
+        filter: '.disabled',
+        onChoose: (evt) => {
+          const len = this.colList.length;
+          if (evt.oldIndex === len) {
+            console.log(`%c 不能拖拽`, 'color: #e74c3c; font-weight: bold');
+          }
+        },
+        onEnd: (evt) => {
+          const oldItem = this.dropCol[evt.oldIndex];
+          this.dropCol.splice(evt.oldIndex, 1);
+          this.dropCol.splice(evt.newIndex, 0, oldItem);
+        },
+      });
+    },
+  },
+};
+</script>
