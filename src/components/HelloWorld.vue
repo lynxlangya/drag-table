@@ -58,12 +58,6 @@ export default {
         /** 延迟 */
         // delay: 1,
         filter: '.disabled',
-        onChoose: (evt) => {
-          const len = this.colList.length;
-          if (evt.oldIndex === len) {
-            console.log(`%c 不能拖拽`, 'color: #e74c3c; font-weight: bold');
-          }
-        },
         onEnd: (evt) => {
           const oldItem = this.dropCol[evt.oldIndex];
           this.dropCol.splice(evt.oldIndex, 1);
